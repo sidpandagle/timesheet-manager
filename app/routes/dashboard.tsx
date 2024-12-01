@@ -1,87 +1,167 @@
-import { i } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
+import moment from "moment";
 import { useState } from "react";
-import { BsFillTagsFill, BsPlayCircleFill, BsStopCircleFill } from "react-icons/bs";
-import { CgPlayButton, CgPlayStop } from "react-icons/cg";
-import { FaDollarSign, FaPlay, FaRegPlayCircle, FaRegStopCircle } from "react-icons/fa";
+import { 
+  BsFillTagsFill, 
+  BsPlayCircleFill, 
+  BsStopCircleFill 
+} from "react-icons/bs";
+import { FaDollarSign, FaRegPlayCircle } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
 import { IoFolderOpenSharp } from "react-icons/io5";
-import { MdOutlineTimer } from "react-icons/md";
+import { TbBrandThreejs } from "react-icons/tb";
 
 export default function Dashboard() {
-  const arr = [...new Array(6)];
+  const entries = Array.from({ length: 6 });
   const days = ['Today', 'Yesterday', 'Day Before'];
-  const [taskEntries, useTaskEntries] = useState([]);
-  const [startStop, useStartStop] = useState(false);
-  const [time, useTime] = useState('00:00:00');
-  const [currentSetInterval, useCurrentSetInterval] = useState(null);
-  
-  const startTimer = (start: boolean) => {
-    useStartStop(start)
+
+  const [taskEntry, setTaskEntry] = useState(new TaskEntryClass);
+  const [taskEntries, setTaskEntries] = useState([]);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [intervalId, setIntervalId] = useState(setInterval(() => {}, 0));
+
+  const toggleTimer = (start:boolean) => {
+    setIsTimerRunning(start);
+
     if (start) {
-      const initialTime = new Date();
-      let interval = setInterval(() => {
-        const milliseconds = new Date(new Date() - initialTime).toISOString().slice(11, 19);
-        useTime(milliseconds);
-      }, 1000)
-      useCurrentSetInterval(interval)
-    }else{
-      clearInterval(currentSetInterval)
-      useTaskEntries([...taskEntries, time]);
-      useTime('00:00:00');
+      taskEntry.startTime = moment().valueOf();
+      const interval = setInterval(() => {
+        const elapsedMilliseconds = moment().valueOf() - taskEntry.startTime;
+        setElapsedTime(Number(moment(elapsedMilliseconds).valueOf()));
+        setTaskEntry(taskEntry);
+      }, 1000);
+      setIntervalId(interval);
+    } else {
+      taskEntry.time = elapsedTime;
+      taskEntry.project = 'Project 1';
+      taskEntry.tags = 'Tagger 1, Tagger 2';
+      taskEntry.endTime = Date.now();
+      setTaskEntry(taskEntry);
+      
+      const newTaskEntries:any = [...taskEntries, taskEntry];
+      setTaskEntries(newTaskEntries);
+      console.log(newTaskEntries)
+      resetTimer();
     }
+  };
+  
+  function resetTimer(){
+    clearInterval(intervalId);
+    setElapsedTime(0);
+    setIntervalId(setInterval(() => {}, 0));
+    setTaskEntry(new TaskEntryClass);
   }
+  // function getDateFormat(value:number, format: string = ''){
+  //   return new Date(value).toISOString().substr(11, 8);
+  // }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTaskEntry({ ...taskEntry, [name]: value });
+  };
+
+  function requiredTaskEntries(){
+    // Add to add and substract moment and get Today / Yesterday, etc
+    // moment().subtract(1, "days")
+    const customTaskEntries = [
+      {
+        day: 'Today',
+        taskEntries : taskEntries,
+        totalTime : taskEntries.reduce((total, entry) => total + entry.time, 0)
+      }
+    ]
+    return customTaskEntries;
+  }
+
   return (
     <div className="flex bg-slate-900 text-slate-500 min-h-screen">
+      {/* Sidebar */}
       <div className="flex flex-col gap-1">
-        <div className="h-16 flex items-center px-4 font-bold"><MdOutlineTimer /></div>
-        {arr.map((r, i) => {
-          return (<button key={i} className="p-2 m-2 hover:bg-slate-400 rounded-md flex justify-center items-center duration-100"><MdOutlineTimer /></button>)
-        })}
+        <div className="h-16 flex items-center px-4 font-bold">
+          <TbBrandThreejs />
+        </div>
+        {entries.map((_, index) => (
+          <button 
+            key={index} 
+            className="p-2 m-2 hover:bg-slate-400 rounded-md flex justify-center items-center"
+          >
+            <TbBrandThreejs />
+          </button>
+        ))}
       </div>
+
+      {/* Main Content */}
       <div className="flex-1">
+        {/* Input Section */}
         <div className="flex items-center py-2 px-4">
-          <input type="text" className="outline-none text-sm font-semibold text-slate-50 bg-slate-900 w-full" placeholder="What are you working on?" />
-          <div className="gap-4 flex items-center ">
+          <input 
+            type="text" 
+            className="outline-none text-sm font-semibold text-slate-50 bg-slate-900 w-full" 
+            placeholder="What are you working on?" 
+            value={taskEntry.task}
+            name="task" 
+            onChange={(e)=>handleChange(e)}
+          />
+          <div className="gap-4 flex items-center">
             <button><IoFolderOpenSharp /></button>
             <button><BsFillTagsFill /></button>
             <button><FaDollarSign /></button>
-            <div className={`text-sm font-semibold ${startStop ? "text-slate-50" : ""}`} >{time}</div>
-            <button onClick={() => startTimer(!startStop)}>{startStop ? <BsStopCircleFill className="text-3xl" /> : <BsPlayCircleFill className="text-3xl" /> }</button>
+            <div className={`text-sm font-semibold ${isTimerRunning ? "text-slate-50" : ""}`}>
+              {moment.utc(elapsedTime).format('HH:mm:ss')}
+            </div>
+            <button onClick={() => toggleTimer(!isTimerRunning)}>
+              {isTimerRunning ? 
+                <BsStopCircleFill className="text-3xl" /> : 
+                <BsPlayCircleFill className="text-3xl" />
+              }
+            </button>
             <div>
               <button><FaRegPlayCircle /></button>
               <button><FaCirclePlus /></button>
             </div>
           </div>
         </div>
-        <div className="flex h-[calc(100vh-4rem)]">
-          <div className="w-full h-full text-sm overflow-y-scroll">
+
+        {/* Task Entries */}
+        <div className="flex h-[calc(100vh-4rem)] overflow-y-scroll">
+          <div className="w-full text-sm">
             <div className="px-4 py-2">Workplace</div>
-            {
-              days.map((r, j) => {
-                return (<table key={j} className="w-full mb-8 bg-slate-800">
-                  <tr className="hover:bg-slate-100 duration-50">
-                    <td className="px-4 py-2">{r}</td>
-                    <td className="px-4 py-2"></td>
-                    <td className="px-4 py-2"></td>
-                    <td className="px-4 py-2"></td>
-                    <td className="px-4 py-2">00:00:20</td>
+            {requiredTaskEntries().map((entry, dayIndex) => (
+              <table key={dayIndex} className="w-full mb-8 bg-slate-800">
+                <thead>
+                  <tr className="hover:bg-slate-400 hover:text-slate-800 duration-50">
+                    <td className="px-4 py-2 w-1/4">{entry.day}</td>
+                    <td className="px-4 py-2 w-1/5"></td>
+                    <td className="px-4 py-2 w-1/5"></td>
+                    <td className="px-4 py-2 w-1/5"></td>
+                    <td className="px-4 py-2 w-1/5">{moment.utc(entry.totalTime).format('HH:mm:ss')}</td>
                   </tr>
-                  {arr.map((s, i) => {
-                    return (
-                      <tr key={i} className="hover:bg-slate-100 duration-50">
-                        <td className="px-4 py-2">Work 2</td>
-                        <td className="px-4 py-2">Project 2</td>
-                        <td className="px-4 py-2">Tag1, Tag2</td>
-                        <td className="px-4 py-2">1:53 PM - 1:53 PM</td>
-                        <td className="px-4 py-2">0:00:12</td>
-                      </tr>
-                    )
-                  })}
-                </table>)
-              })}
+                </thead>
+                <tbody>
+                  {entry.taskEntries.map((taskEntryValue:TaskEntryClass, entryIndex) => (
+                    <tr key={entryIndex} className="hover:bg-slate-400 hover:text-slate-800 duration-50">
+                      <td className="px-4 py-2 w-1/4">{taskEntryValue.task}</td>
+                      <td className="px-4 py-2 w-1/5">{taskEntryValue.project}</td>
+                      <td className="px-4 py-2 w-1/5">{taskEntryValue.tags}</td>
+                      <td className="px-4 py-2 w-1/5">{moment.utc(taskEntryValue.startTime).format('HH:mm:ss')} - {moment.utc(taskEntryValue.endTime).format('HH:mm:ss')}</td>
+                      <td className="px-4 py-2 w-1/5">{moment.utc(taskEntryValue.time).format('HH:mm:ss')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+export class TaskEntryClass{
+  task:string = '';
+  time:number = 0;
+  project:string = '';
+  billable:boolean =  false;
+  startTime:number =  0;
+  endTime:number =  0;
+  tags:string = '';
 }
