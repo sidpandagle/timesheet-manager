@@ -12,6 +12,16 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { Calendar } from "~/components/ui/calendar";
 import { IoMdBriefcase } from "react-icons/io";
 import { Separator } from "~/components/ui/separator"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "./ui/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { Button } from "./ui/button";
 
 
 export default function Main() {
@@ -104,10 +114,21 @@ export default function Main() {
             <Popover>
               <PopoverTrigger asChild><button><FaFolderOpen className="text-lg" /></button></PopoverTrigger>
               <PopoverContent>
-                <div className="flex items-center gap-2"> 
-                  <IoMdBriefcase className="text-sm" />
-                  <div className="font-semibold text-sm">Workplace</div>
-                </div>
+              <Command>
+                  <CommandInput placeholder="Type a command or search..." />
+                  <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup heading="Suggestions">
+                      <CommandItem>Calendar</CommandItem>
+                      <CommandItem>Search Emoji</CommandItem>
+                      <CommandItem>Calculator</CommandItem>
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup heading="Settings">
+                        {/* Integrate the time insert  */}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
               </PopoverContent>
             </Popover>
             <Popover>
@@ -173,13 +194,23 @@ export default function Main() {
 
         {/* Task Entries */}
         <div className="flex h-[calc(100vh-4rem)] overflow-y-scroll">
-          <div className="w-full text-sm">
-            <div className="flex items-center px-3 py-2 gap-2">
-              <IoMdBriefcase className="text-lg" />
-              <div className="font-semibold text-lg">Workplace</div>
+          <div className="w-full text-sm mr-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center px-3 py-2 gap-2">
+                <IoMdBriefcase className="text-lg" />
+                <div className="font-semibold text-lg">Workplace</div>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Sort Projects By</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>Sort Projects By</DropdownMenuLabel>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             {groupByDate(taskEntries).map((entry, dayIndex) => (
-              <table key={dayIndex} className="w-full mb-3 bg-zinc-200 rounded-md text-xs mx-3">
+              <table key={dayIndex} className="w-full mb-3 bg-zinc-200 rounded-lg text-xs mx-3">
                 <thead>
                   <tr className="">
                     <td className="px-4 py-2 w-1/4 font-semibold">{entry.day}</td>
@@ -191,7 +222,7 @@ export default function Main() {
                 </thead>
                 <tbody>
                   {entry.taskEntries.map((taskEntryValue: TaskEntryClass, entryIndex) => (
-                    <tr key={entryIndex} className="hover:bg-zinc-300 duration-200 hover:text-slate-800 duration-50">
+                    <tr key={entryIndex} className="hover:bg-zinc-300 duration-200">
                       <td className="px-4 py-2 w-1/4">{taskEntryValue.task}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.project}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.tags}</td>
