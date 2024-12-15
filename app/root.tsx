@@ -40,7 +40,6 @@ export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
         <SidebarProvider>
           <AppSidebar />
           <main className="w-full">
-          <SidebarTrigger />
             {children}
             <ScrollRestoration />
             <Scripts />
