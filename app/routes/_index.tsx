@@ -3,8 +3,8 @@ import Main from "~/components/main";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "TimeSheetManager" },
+    { name: "description", content: "Welcome to TimeSheetManager!" },
   ];
 };
 
