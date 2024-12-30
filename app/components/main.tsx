@@ -112,6 +112,7 @@ export default function Main() {
       <div className="flex-1">
         {/* Input Section */}
         <div className="flex items-center py-2 px-4 bg-zinc-0">
+          {/* Task Input */}
           <input
             type="text"
             className="outline-none text-sm font-semibold text-black w-full"
@@ -120,58 +121,58 @@ export default function Main() {
             name="task"
             onChange={(e) => handleChange(e)}
           />
+          {/* Action Buttons */}
           <div className="gap-4 flex items-center text-sm">
+            {/* Projects */}
             <Popover>
               <PopoverTrigger asChild><button><FaFolderOpen className="text-lg" /></button></PopoverTrigger>
               <PopoverContent>
                 <Command>
-                  <CommandInput placeholder="Type a command or search..." />
+                  <CommandInput placeholder="Search by project" />
                   <CommandList>
                     <CommandEmpty>No results found.</CommandEmpty>
                     <CommandGroup heading="Suggestions">
-                      <CommandItem>Calendar</CommandItem>
-                      <CommandItem>Search Emoji</CommandItem>
-                      <CommandItem>Calculator</CommandItem>
+                      <CommandItem>Project 1</CommandItem>
+                      <CommandItem>Project 2</CommandItem>
+                      <CommandItem>Project 3</CommandItem>
                     </CommandGroup>
                     <CommandSeparator />
-                    {/* <CommandGroup heading="Settings">
-                      Integrate the time insert 
-                    </CommandGroup> */}
+                    <CommandGroup>
+                      <CommandItem className="justify-center">+ Create a new project</CommandItem>
+                    </CommandGroup>
                   </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>
+            
+            {/* Tags */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center h-10"><BsFillTagsFill /></button>
               </PopoverTrigger>
-              <PopoverContent className="w-40">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Tags</h4>
-                  </div>
-                  <div className="grid gap-2">
-                    lorem
-                  </div>
-                </div>
+              <PopoverContent>
+                <Command>
+                  <CommandInput placeholder="Search by tag" />
+                  <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup heading="Suggestions">
+                      <CommandItem>Tag 1</CommandItem>
+                      <CommandItem>Tag 2</CommandItem>
+                      <CommandItem>Tag 3</CommandItem>
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup>
+                      <CommandItem className="justify-center">+ Create a new tag</CommandItem>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
               </PopoverContent>
             </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center h-10"><FaDollarSign /></button>
-              </PopoverTrigger>
-              <PopoverContent className="w-40">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Billing</h4>
-                  </div>
-                  <div className="grid gap-2">
-                    lorem
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
+            
+            {/* Billing */}
+            <button className="flex items-center h-10 text-slate-400"><FaDollarSign /></button>
+            
+            {/* Timer / Calendar */}
             <Popover>
               <PopoverTrigger asChild>
                 <div className={`text-sm font-semibold flex items-center h-10 ${isTimerRunning ? "text-black" : ""}`}>
@@ -187,6 +188,8 @@ export default function Main() {
                 />
               </PopoverContent>
             </Popover>
+            
+            {/* Start / Stop Timer */}
             <button onClick={() => toggleTimer(!isTimerRunning)}>
               {isTimerRunning ?
                 <BsStopCircleFill className="text-3xl" /> :
@@ -219,7 +222,6 @@ export default function Main() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
             {groupByDate(taskEntries).map((entry: any, dayIndex) => (
               <table key={dayIndex} className="w-full mb-3 bg-zinc-200 rounded-lg text-xs mx-3">
                 <thead>
