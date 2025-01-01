@@ -10,7 +10,7 @@ export default function NavBar() {
                 <div className="flex flex-row items-center gap-4">
                     <Link to="/" className="flex flex-row items-center gap-[5px]">
                         <div className="p-3 bg-zinc-600 rounded-md"></div>
-                        <h2 className="text-[14px] font-semibold uppercase">TickTrack</h2>
+                        <h2 className="text-[14px] font-semibold uppercase">SprintSync</h2>
                     </Link>
                 </div>
                 {/* Centered MenubarDemo */}

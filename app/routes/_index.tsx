@@ -4,8 +4,8 @@ import Main from "~/components/main";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "TickTrack" },
-    { name: "description", content: "Welcome to TickTrack!" },
+    { title: "SprintSync" },
+    { name: "description", content: "Welcome to SprintSync!" },
   ];
 };
 
