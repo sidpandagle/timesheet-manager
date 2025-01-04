@@ -5,7 +5,7 @@ import { ModeToggle } from "./themeSwitcher"
 
 export default function NavBar() {
     return (
-        <div>
+        <div className="h-[40px]">
             <div className="flex flex-row justify-between px-3 py-1 items-center">
                 <div className="flex flex-row items-center gap-4">
                     <Link to="/" className="flex flex-row items-center gap-[5px]">
