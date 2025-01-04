@@ -1,35 +1,59 @@
 import {
-    Menubar,
-    MenubarCheckboxItem,
-    MenubarContent,
-    MenubarItem,
-    MenubarMenu,
-    MenubarRadioGroup,
-    MenubarRadioItem,
-    MenubarSeparator,
-    MenubarShortcut,
-    MenubarSub,
-    MenubarSubContent,
-    MenubarSubTrigger,
-    MenubarTrigger,
-  } from "~/components/ui/menubar"
+  Menubar,
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "~/components/ui/menubar"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-  
+import { Link } from "@remix-run/react"
+
 
 
 export function MenubarDemo() {
-    return (
-      <Menubar className="shadow-none rounded-none border-none">
-        <MenubarMenu>
+  return (
+    <Menubar className="shadow-none rounded-none border-none">
+      <MenubarMenu>
+        <Link to={'/login'}>
+          <MenubarTrigger className="cursor-pointer">
+            Login
+          </MenubarTrigger>
+        </Link>
+      </MenubarMenu>
+      <MenubarMenu>
+        <Link to={'/about'}>
+          <MenubarTrigger className="cursor-pointer">
+            About
+          </MenubarTrigger>
+        </Link>
+      </MenubarMenu>
+      <MenubarMenu>
+        <Link to={'/contact'}>
+          <MenubarTrigger className="cursor-pointer">
+            Contact
+          </MenubarTrigger>
+        </Link>
+      </MenubarMenu>
+
+      {/* Default Ref */}
+      {/* <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>
@@ -113,10 +137,10 @@ export function MenubarDemo() {
             <MenubarSeparator />
             <MenubarItem inset>Add Profile...</MenubarItem>
           </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
-    )
-  }
+        </MenubarMenu> */}
+    </Menubar>
+  )
+}
 
 export function ProfileHeader() {
   return (
@@ -154,4 +178,3 @@ export function ProfileHeader() {
     </DropdownMenu>
   )
 }
-  

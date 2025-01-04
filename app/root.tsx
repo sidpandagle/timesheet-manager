@@ -36,12 +36,12 @@ export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
         <Links />
       </head>
       <body>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <NavBar />
-            {children}
-            <ScrollRestoration />
-            <Scripts />
-          </ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <NavBar />
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </ThemeProvider>
       </body>
     </html>
   );

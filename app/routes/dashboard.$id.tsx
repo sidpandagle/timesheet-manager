@@ -7,15 +7,58 @@ import { FaDollarSign, FaRegPlayCircle, FaFolderOpen } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Calendar } from "~/components/ui/calendar";
 import { Separator } from "~/components/ui/separator"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "./ui/command";
-import { TaskEntryClass } from "./../shared/InstanceTypes"
-import { APIURL } from "./../shared/constants"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "~/components/ui/command";
+import { TaskEntryClass } from "../shared/InstanceTypes"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuCheckboxes } from "./DashboardComp/dashview";
-import { Input } from "./ui/input";
 import { PopoverClose } from "@radix-ui/react-popover";
+import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { APIURL } from "./../shared/constants"
+import { LoaderFunctionArgs } from "@remix-run/node";
 
-export default function Main({ taskList, projectList, tagList }: Readonly<{ taskList: TaskEntryClass[], projectList: any[], tagList: any[] }>) {
+
+export async function loader({
+  params,
+}: LoaderFunctionArgs) {
+  try {
+    console.log(params.id)
+    // Concurrently fetch all the required data
+    const [taskResponse, projectResponse, tagResponse] = await Promise.all([
+      fetch(APIURL + "/api/tasks" + "/" + params.id),
+      fetch(APIURL + "/api/projects" + "/" + params.id),
+      fetch(APIURL + "/api/tags" + "/" + params.id),
+    ]);
+
+    // Check if all responses are successful
+    if (!taskResponse.ok || !projectResponse.ok || !tagResponse.ok) {
+      throw new Error(
+        `Failed to fetch data: ${!taskResponse.ok ? taskResponse.statusText :
+          !projectResponse.ok ? projectResponse.statusText : tagResponse.statusText}`
+      );
+    }
+
+    // Parse all JSON data concurrently
+    const [taskList, projectList, tagList] = await Promise.all([
+      taskResponse.json(),
+      projectResponse.json(),
+      tagResponse.json(),
+    ]);
+
+    return {
+      taskList: taskList.data,
+      projectList: projectList.data,
+      tagList: tagList.data,
+      userId: params.id
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw new Response("Failed to load data", { status: 500 });
+  }
+}
+
+export default function Dashboard() {
+
+  const { taskList, projectList, tagList, userId } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
 
   const [taskEntry, setTaskEntry] = useState(new TaskEntryClass);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -41,8 +84,9 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
       taskEntry.endTime = Date.now();
 
       const tempTaskEntry: any = { ...taskEntry };
-      tempTaskEntry.startTime = moment(tempTaskEntry.startTime).utc().format()
-      tempTaskEntry.endTime = moment(tempTaskEntry.endTime).utc().format()
+      tempTaskEntry.startTime = moment(tempTaskEntry.startTime).utc().format();
+      tempTaskEntry.endTime = moment(tempTaskEntry.endTime).utc().format();
+      tempTaskEntry.userId = userId;
       const response = await fetch(APIURL + "/api/tasks", {
         method: "POST",
         headers: {
@@ -59,6 +103,11 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
       }
       setTaskEntry(taskEntry);
       resetTimer();
+
+      // Refresh the page
+      if (revalidator.state === "idle") {
+        revalidator.revalidate();
+      }
     }
   };
 
@@ -76,8 +125,7 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
 
   function groupByDate(entries: any) {
     const grouped: any = {};
-
-    entries.forEach((entry: any) => {
+    entries && entries.forEach((entry: any) => {
       const date = new Date(entry.startTime).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'long',
@@ -97,20 +145,26 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
       grouped[date].taskEntries.push(entry);
       grouped[date].totalTime += entry.time;
     });
-    return Object.values(grouped);
+    // Sort the groups by date in reverse order
+    const sortedGrouped = Object.values(grouped).sort((a: any, b: any) => {
+      const dateA = new Date(a.day).getTime();
+      const dateB = new Date(b.day).getTime();
+      return dateB - dateA;
+    });
+    return Object.values(sortedGrouped);
   }
 
   function calculateDuration(value: any) {
     const duration = moment.duration(value / 1e6)
-    return `${Math.floor(duration.asHours()).toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}`
+    return `${Math.floor(duration.asHours()).toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}:${duration.seconds().toString().padStart(2, '0')}`
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-[calc(100vh-40px)] overflow-auto">
       {/* Main Content */}
       <div className="flex-1">
         {/* Input Section */}
-        <div className="flex items-center py-2 px-4 bg-zinc-0">
+        <div className="flex items-center dark:bg-zinc-950 bg-white py-2 px-4 bg-zinc-0 sticky top-0 left-0">
           {/* Task Input */}
           <input
             type="text"
@@ -133,7 +187,7 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
                   <CommandList>
                     <CommandEmpty>No results found.</CommandEmpty>
                     <CommandGroup heading="Suggestions">
-                      {projectList.map((project, index) => (
+                      {projectList && projectList.map((project: any, index: number) => (
                         <CommandItem
                           key={index}
                         >
@@ -166,26 +220,26 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
               <PopoverContent>
                 <Command>
                   <CommandInput placeholder="Search by tag" />
-                    <CommandList>
-                      <CommandEmpty>No results found.</CommandEmpty>
-                      <CommandGroup heading="Suggestions">
-                        {tagList.map((tag, index) => (
-                          (<CommandItem key={index}>
-                            <PopoverClose>
+                  <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup heading="Suggestions">
+                      {tagList && tagList.map((tag: any, index: number) => (
+                        (<CommandItem key={index}>
+                          <PopoverClose>
                             <button
                               onClick={() => setTaskEntry({ ...taskEntry, tags: [tag.tag] })}
                             >
                               {tag.tag}
                             </button>
                           </ PopoverClose>
-                          </CommandItem>)
-                        ))}
-                      </CommandGroup>
-                      <CommandSeparator />
-                      <CommandGroup>
-                        <CommandItem className="justify-center">+ Create a new tag</CommandItem>
-                      </CommandGroup>
-                    </CommandList>
+                        </CommandItem>)
+                      ))}
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup>
+                      <CommandItem className="justify-center">+ Create a new tag</CommandItem>
+                    </CommandGroup>
+                  </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>
@@ -227,11 +281,12 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
         <Separator />
 
         {/* Task Entries */}
-        <div className="flex h-[calc(100vh-4rem)] overflow-y-scroll">
-          <div className="w-full text-sm mr-5"><div className="flex flex-row gap-4 px-3 p-3">
-            <Input placeholder="Filter Task!" className="border dark:border-zinc-600 outline-none w-1/3" />
-            <DropdownMenuCheckboxes />
-          </div>
+        <div className="flex overflow-y-scroll">
+          <div className="w-full text-sm mr-5">
+            {/* <div className="flex flex-row gap-4 px-3 p-3">
+              <Input placeholder="Filter Task!" className="border dark:border-zinc-600 outline-none w-1/3" />
+              <DropdownMenuCheckboxes />
+            </div> */}
             <div className="flex items-center justify-between">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -260,7 +315,7 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
                       <td className="px-4 py-2 w-1/4">{taskEntryValue.task}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.project}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.tags.map((res) => res + ' ')}</td>
-                      <td className="px-4 py-2 w-1/5">{moment.utc(taskEntryValue.startTime).format('HH:mm:ss')} - {moment.utc(taskEntryValue.endTime).format('HH:mm:ss')}</td>
+                      <td className="px-4 py-2 w-1/5">{moment.utc(taskEntryValue.startTime).format('HH:mm A')} - {moment.utc(taskEntryValue.endTime).format('HH:mm A')}</td>
                       <td className="px-4 py-2 w-1/5">{calculateDuration(taskEntryValue.time)}</td>
                     </tr>
                   ))}
