@@ -20,7 +20,6 @@ export async function loader({
   params,
 }: LoaderFunctionArgs) {
   try {
-    console.log(params.id)
     // Concurrently fetch all the required data
     const [taskResponse, projectResponse, tagResponse] = await Promise.all([
       fetch(APIURL + "/api/tasks" + "/" + params.id),

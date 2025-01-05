@@ -24,7 +24,6 @@ export const action = async ({ request }) => {
     // Save the token or set cookies as needed
 
     // Redirect to the dashboard on successful login
-    console.log(data?.data)
     return redirect("/dashboard/" + data?.data?.id);
   } else {
     // Handle login error
