@@ -135,12 +135,10 @@ export default function Main({ taskList, projectList, tagList }: Readonly<{ task
                     <CommandGroup heading="Suggestions">
                       {projectList.map((project, index) => (
                         <CommandItem
-                          key={index}
+                          key={index} 
                         >
                           <PopoverClose>
-                            <button
-                              onClick={() => setTaskEntry({ ...taskEntry, project: project.project })}
-                            >
+                            <button className="w-full" onClick={() => setTaskEntry({ ...taskEntry, project: project.project })}>
 
                               {project.project}
                             </button>

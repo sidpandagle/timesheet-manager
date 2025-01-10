@@ -298,7 +298,7 @@ export default function Dashboard() {
             </div>
 
             {groupByDate(taskList).map((entry: any, dayIndex) => (
-              <table key={dayIndex} className="w-full mb-3 bg-zinc-200 dark:bg-zinc-800 rounded-lg text-xs mx-3">
+              <table key={dayIndex} className="w-full my-3 bg-zinc-200 dark:bg-zinc-800 rounded-lg text-xs mx-3">
                 <thead>
                   <tr className="">
                     <td className="px-4 py-2 w-1/4 font-semibold">{entry.day}</td>
@@ -310,7 +310,7 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {entry.taskEntries.map((taskEntryValue: TaskEntryClass, entryIndex: any) => (
-                    <tr key={entryIndex} className="hover:bg-zinc-300 hover:text-black duration-200">
+                    <tr key={entryIndex} className="">
                       <td className="px-4 py-2 w-1/4">{taskEntryValue.task}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.project}</td>
                       <td className="px-4 py-2 w-1/5">{taskEntryValue.tags.map((res) => res + ' ')}</td>
