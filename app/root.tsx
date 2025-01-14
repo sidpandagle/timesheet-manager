@@ -40,9 +40,8 @@ export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {!shouldHideNavBar && <NavBar />}
           {children}
           <ScrollRestoration />
           <Scripts />
