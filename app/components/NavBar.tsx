@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react"
 import { MenubarDemo, ProfileHeader } from "./NavBarHeader"
 import { Separator } from "./ui/separator"
-import { ModeToggle } from "./themeSwitcher"
+import ModeToggle from "./themeSwitcher"
 
 export default function NavBar() {
     return (

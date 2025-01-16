@@ -4,13 +4,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLocation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
 import styles from "./tailwind.css?url";
-import NavBar from "./components/NavBar";
 import { ThemeProvider } from "~/components/theme-provider";
 
 export const links: LinksFunction = () => [
@@ -28,9 +26,6 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const location = useLocation();
-  const hideNavBarRoutes = ["/login", "/signup"];
-  const shouldHideNavBar = hideNavBarRoutes.includes(location.pathname);
 
   return (
     <html lang="en">

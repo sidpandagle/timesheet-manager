@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Popover, PopoverTrigger, PopoverContent } from "../components/ui/popover";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsFillTagsFill, BsPlayCircleFill, BsStopCircleFill } from "react-icons/bs";
 import { FaDollarSign, FaRegPlayCircle, FaFolderOpen } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
@@ -14,7 +14,19 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
 import { APIURL } from "./../shared/constants"
 import { LoaderFunctionArgs } from "@remix-run/node";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "~/components/ui/dialog";
+import { Label } from "~/components/ui/label"
+import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
 
 export async function loader({
   params,
@@ -56,14 +68,37 @@ export async function loader({
 
 export default function Dashboard() {
 
-  const { taskList, projectList, tagList, userId } = useLoaderData<typeof loader>();
+  const { taskList, userId } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
 
+  const [projectList, setProjectList] = useState([]);
+  const [tagList, setTagList] = useState([]);
   const [taskEntry, setTaskEntry] = useState(new TaskEntryClass);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [intervalId, setIntervalId] = useState(setInterval(() => { }, 0));
-  const [date, setDate] = React.useState<Date>()
+  const [date, setDate] = React.useState<Date>();
+  const [project, setProject] = React.useState('');
+
+  useEffect(() => {
+    fetchProjectAndTagData();
+  }, [taskEntry]);
+
+  const fetchProjectAndTagData = async () => {
+    try {
+      const projectResponse = await fetch(APIURL + "/api/projects" + "/" + userId);
+      const projectData = await projectResponse.json();
+      setProjectList(projectData.data);
+
+      const tagResponse = await fetch(APIURL + "/api/tags" + "/" + userId);
+      const tagData = await tagResponse.json();
+      setTagList(tagData.data);
+    } catch (err) {
+      console.log('Failed to fetch data');
+    } finally {
+      console.log('Loading false');
+    }
+  };
 
   const toggleTimer = async (start: boolean) => {
     setIsTimerRunning(start);
@@ -158,6 +193,38 @@ export default function Dashboard() {
     return `${Math.floor(duration.asHours()).toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}:${duration.seconds().toString().padStart(2, '0')}`
   }
 
+
+  async function addProject(name: string) {
+    try {
+      const response = await fetch(APIURL + "/api/projects", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          {
+            "userId": userId,
+            "project": name,
+            "createdAt": moment().toISOString(),
+            "updatedAt": moment().toISOString()
+          }
+        ), // Sending name in the request body
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add project');
+      }
+
+      const resp = await response.json();
+      console.log(resp)
+      fetchProjectAndTagData();
+      setTaskEntry({ ...taskEntry, project: name })
+    } catch (err) {
+      console.log('Error adding project:', err);
+    } finally {
+      console.log('Stopped Loading');
+    }
+  }
   return (
     <div className="flex h-[calc(100vh-40px)] overflow-auto">
       {/* Main Content */}
@@ -178,7 +245,11 @@ export default function Dashboard() {
             {/* Projects */}
             <Popover>
               <PopoverTrigger asChild>
-                <button>  {taskEntry.project ? taskEntry.project : <FaFolderOpen className="text-lg" />}</button>
+                <div className={`w-24 text-right overflow-hidden`}>
+                  <button className={`px-2 py-1 rounded ${taskEntry.project ? "bg-zinc-800 text-white" : ""}`}>
+                    {taskEntry.project ? taskEntry.project : <FaFolderOpen className="text-lg " />}
+                  </button>
+                </div>
               </PopoverTrigger>
               <PopoverContent>
                 <Command>
@@ -187,25 +258,50 @@ export default function Dashboard() {
                     <CommandEmpty>No results found.</CommandEmpty>
                     <CommandGroup heading="Suggestions">
                       {projectList && projectList.map((project: any, index: number) => (
-                        <CommandItem
-                          key={index}
-                        >
-                          <PopoverClose>
-                            <button
-                              onClick={() => setTaskEntry({ ...taskEntry, project: project.project })}
-                            >
-
+                        <PopoverClose className="w-full" key={index}>
+                          <button className="w-full" onClick={() => setTaskEntry({ ...taskEntry, project: project.project })}>
+                            <CommandItem className="w-full cursor-pointer">
                               {project.project}
-                            </button>
-                          </ PopoverClose>
-                        </CommandItem>
+                            </CommandItem>
+                          </button>
+                        </ PopoverClose>
                       ))}
                     </CommandGroup>
 
                     <CommandSeparator />
-                    <CommandGroup>
-                      <CommandItem className="justify-center">+ Create a new project</CommandItem>
-                    </CommandGroup>
+                    <Dialog>
+                      <CommandGroup>
+                        <CommandItem>
+                          <DialogTrigger className="w-full">
+                            + Create a new project
+                          </DialogTrigger>
+                        </CommandItem>
+                      </CommandGroup>
+
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Add Project</DialogTitle>
+                          <DialogDescription>
+                            Enter project name here. Click save when youre done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">
+                              Name
+                            </Label>
+                            <Input id="project" name="project" value={project} onChange={(e) => setProject(e.target.value)} className="col-span-3" />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <PopoverClose>
+                            <DialogClose>
+                              <Button type="submit" onClick={() => addProject(project)}>Save changes</Button>
+                            </DialogClose>
+                          </ PopoverClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </CommandList>
                 </Command>
               </PopoverContent>
@@ -323,7 +419,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-      </div>
+      </div >
     </div >
   );
 }
