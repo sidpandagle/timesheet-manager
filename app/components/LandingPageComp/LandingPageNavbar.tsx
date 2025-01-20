@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import * as React from "react"
 
 import { cn } from "~/lib/utils"
@@ -19,7 +20,7 @@ export default function LandingPageNavbar() {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="text-[15px] font-semibold">Getting started</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="text-[13px] font-semibold">Getting started</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
@@ -48,7 +49,7 @@ export default function LandingPageNavbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="text-[15px] font-semibold">Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="text-[13px] font-semibold">Components</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {LandingPageComponents.map((component) => (

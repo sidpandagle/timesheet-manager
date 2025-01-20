@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Popover, PopoverTrigger, PopoverContent } from "../components/ui/popover";
 import moment from "moment";

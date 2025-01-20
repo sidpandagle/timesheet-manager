@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useActionData, redirect } from "@remix-run/react";
 import { APIURL } from "~/shared/constants";
 import LoginPage from "~/login/page";
@@ -26,7 +27,7 @@ export const action = async ({ request }: any) => {
 };
 
 export default function Login() {
-  const actionData = useActionData();
+  const actionData = useActionData() as {error? : string};
 
   return (
     <div>

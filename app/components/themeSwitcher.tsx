@@ -9,7 +9,7 @@ export default function ModeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex size-9 relative items-center justify-center rounded-md outline-none bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 duration-100">
+        <button className="flex size-8 relative items-center justify-center rounded-md outline-none bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 duration-100">
           <IoSunny className="absolute size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <FaMoon className="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           {/* <span className="sr-only">Toggle theme</span> */}
